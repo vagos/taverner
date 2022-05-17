@@ -1,7 +1,9 @@
 PREFIX ?= /usr/local
 
-install: taverner barkeep
+install: taverner
 	install -Dm755 taverner $(DESTDIR)$(PREFIX)/bin/taverner
-	install -Dm755 barkeep $(DESTDIR)$(PREFIX)/bin/barkeep
 
-.PHONY: install
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/bin/taverner
+
+.PHONY: install uninstall
