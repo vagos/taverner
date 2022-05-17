@@ -1,20 +1,346 @@
 #!/bin/bash
+# barkeep - create entries based on a template for use with taverner
+
+# Options
+shopt -s nullglob
+
+NAME=taverner
+argv0=barkeep
+
+prefix=${XDG_DATA_DIR:-$HOME/.local/share}/$NAME
+bindir=$prefix/bin
+coverdir=$prefix/covers
+templatedir=$prefix/templates
+
+readonly TMPDIR=/tmp
+
+usage_mk() {
+    cat <<'!'
+Create a new menu entry.  Uses $EDITOR to complete the new entry.
+
+    mk [-c <cover>] -t <template> <entry>
+        -t      Select a template to base the new entry on.
+        -c      Path or url to a cover image.  (Note: This is destructive)
+        entry   The name for the new launcher script.
+
+!
+}
+
+usage_ls() {
+    cat <<!
+List entries and templates.
+
+    ls [-t]
+        -t      List all available templates.
+
+        If no arguments given this will list all entries.
+
+!
+}
+
+usage_ed() {
+    cat <<'!'
+Edit the selected entry or template.  Only one entry may be edited per
+invocation.
+
+    ed [-t <template>] [-c <cover>] [entry]
+        -t      Attempts to open the template with $EDITOR.
+        -c      Replace the cover for entry, note that the entry is required
+                for this operation.
+        entry   Attempts to open the entry with $EDITOR.
+
+    Issue: If -c is specified for an entry, it will both update the entries
+           cover image but also offer to edit the entry as well.
+
+!
+}
+
+usage_rm() {
+    cat <<!
+Remove selected entries and corresponding covers.  If no argument given,
+attempt to remove all entires.
+
+    rm [entry [entry]]
+        entry   The chosen entry to remove.
+
+!
+}
+
+usage() {
+    cat <<'!'
+Usage: barkeep [-h] [mk | ls | ed | rm]
+    Each mode has an -h flag which produces a summary of its help section.
+
+    -e      Preferred editor, uses $EDITOR if not set.
+
+!
+
+usage_mk
+usage_ls
+usage_ed
+usage_rm
+
+    cat <<!
+Examples:
+    # Creates an entry using the psx template called wipeout_3 using emacs
+    # as the editor.
+    barkeep mk -e emacs -t psx -c ~/wipeout.png wipeout_3
+
+    # Removes both wipeout_3 and crash_bandicoot launchers along with any
+    # cover images if found.
+    barkeep rm wipeout_3 crash_bandicoot
+!
+}
+
+puts() {
+    printf -- "$1\n" "${@:2}"
+}
+
+err() {
+    puts "$argv0: $1" "${@:2}" >&2
+}
+
+confirm() {
+    local msg=$1
+    local -l reply
+
+    read -rp "$msg [Y/n] " reply
+
+    # If the reply is empty, assume Y
+    [[ $reply == y || ! $reply ]]
+}
+
+handle_ls() {
+    while (($#)); do
+        case $1 in
+            -t) ls_templates; exit ;;
+            -h) usage_ls; exit ;;
+            *)  err '%s: Unrecognised argument' "$1"; exit 1 ;;
+        esac
+        shift
+    done
+
+    ls_entries
+}
+
+ls_entries() {
+    local entries
+
+    entries=("$bindir"/*)
+
+    if ((${#entries[@]})); then
+        puts '%s' "${entries[@]##*/}"
+    else
+        err '%s: No entries found here' "$bindir"
+    fi
+}
+
+ls_templates() {
+    local templates
+
+    templates=("$templatedir"/*)
+
+    if ((${#templates[@]})); then
+        puts '%s' "${templates[@]##*/}"
+    else
+        err '%s: No templates found here' "$templatedir"
+    fi
+}
+
+handle_mk() {
+    local entry cover template editor
+
+    while (($#)); do
+        case $1 in
+            -c) shift; cover=$1 ;;
+            -t) shift; template=$1 ;;
+            -e) shift; editor=$1 ;;
+            -h) usage_mk; exit ;;
+            *) entry=$1
+        esac
+        shift
+    done
+
+    if [[ ! $entry ]]; then
+        err 'An entry name is required'
+        exit 1
+    fi
+
+    if [[ -e $bindir/$entry ]]; then
+        err '%s: This entry already exists.  See %s ls -e' "$bindir"/"$entry" "$argv0"
+        exit 1
+    fi
+
+    if [[ ! $template ]]; then
+        err 'A template required.  See %s ls -t' "$argv0"
+        exit 1
+    fi
+
+    if [[ ! -e $templatedir/$template ]]; then
+        err '%s: Unable to find requested template' "$templatedir"/"$template"
+        exit 1
+    fi
+
+    if [[ ! $cover ]]; then
+        cover=$coverdir/placeholder
+    else
+        mk_cover "$entry" "$cover"
+    fi
+
+    mk_entry "$editor" "$bindir"/"$entry" "$templatedir"/"$template"
+}
+
+mk_entry() {
+    local editor=$1
+    local entry=$2
+    local template=$3
+
+    cp -vf -- "$template" "$entry"
+    command "${editor:-${EDITOR:-vi}}" "$entry"
+    chmod -c +x -- "$entry"
+}
+
+mk_cover() {
+    local entry=$1
+    local cover=$2
+
+    if [[ $cover =~ [https?\|f]tp ]]; then
+        if curl -#o "$TMPDIR"/barkeep_cover "$cover"; then
+            cover=$TMPDIR/barkeep_cover
+        else
+            err '%s: Failed to download cover' "$cover"
+            exit 1
+        fi
+    fi
+
+    if [[ -e $cover ]]; then
+        command gm mogrify -resize 368x527\! "$cover"
+        mv -vf -- "$cover" "$coverdir"/"$entry"
+    else
+        err '%s: Unable to find cover' "$cover"
+    fi
+}
+
+handle_rm() {
+    local entry entries remove
+
+    while (($#)); do
+        case $1 in
+            -h) usage_rm; exit ;;
+            *)  entries+=($1)
+        esac
+        shift
+    done
+
+    if ! ((${#entries[@]})); then
+        entries=("$bindir"/*)
+
+        # As the proceeding removal code may not be dealing with absolute paths
+        # if a user explicitly makes a selection we strip the bindir here to
+        # keep it consistent with this assumption.
+        entries=(${entries[@]##$bindir/})
+
+        if ! ((${#entries[@]})); then
+            err '%s: Nothing here to remove' "$bindir"
+            exit 1
+        fi
+    fi
+
+    puts 'Attempting to remove the following launchers:'
+    puts '%s' "${entries[@]##$bindir/}"
+
+    if ! confirm 'Continue?'; then
+        puts 'Nothing removed'
+        exit
+    fi
+
+    for entry in "${entries[@]}"; do
+        if [[ -e $bindir/$entry ]]; then
+            remove+=("$bindir"/"$entry")
+        fi
+
+        if [[ -e $coverdir/$entry ]]; then
+            remove+=("$coverdir"/"$entry")
+        fi
+    done
+
+    rm -vf -- "${remove[@]}"
+}
+
+handle_ed() {
+    local entry cover template editor collated_files
+
+    while (($#)); do
+        case $1 in
+            -c) shift; cover=$1 ;;
+            -t) shift; template=$1 ;;
+            -e) shift; editor=$1 ;;
+            -h) usage_ed; exit ;;
+            *) entry=$1
+        esac
+        shift
+    done
+
+    if [[ $entry && $cover ]]; then
+        mk_cover "$entry" "$cover"
+        exit
+    fi
+
+    if [[ $template && -e $templatedir/$template ]]; then
+        collated_files+=("$templatedir"/"$template")
+    fi
+
+    if [[ $entry && -e $bindir/$entry ]]; then
+        collated_files+=("$bindir"/"$entry")
+    fi
+
+    if ((${#collated_files[@]})); then
+        command -- "${editor:-${EDITOR:-vi}}" "${collated_files[@]}"
+    fi
+}
+
+barkeep()
+{
+mkdir -p "$bindir" "$coverdir" "$templatedir"
+
+if ! (($#)); then
+    err 'At least one argument is required'
+    usage
+    exit 1
+fi
+
+while (($#)); do
+    case $1 in
+        ed) shift; handle_ed "$@"
+            exit ;;
+        ls) shift; handle_ls "$@"
+            exit ;;
+        mk) shift; handle_mk "$@"
+            exit ;;
+        rm) shift; handle_rm "$@"
+            exit ;;
+        -h) usage
+            exit ;;
+        *)  err '%s: Unrecognised argument' "$1"
+            usage
+            exit 1
+    esac
+    shift
+done
+
+}
+
+
 # taverner - generate dmenu for launchers and display cover images
 
 shopt -s nullglob
 
-readonly argv0=taverner
-readonly prefix=${LOCALDIR:-$HOME/local}/data/$argv0
-readonly bindir=$prefix/bin
-readonly coverdir=$prefix/covers
+argv0=taverner
+prefix=${XDG_DATA_DIR:-$HOME/.local/share}/$NAME
+bindir=$prefix/bin
+coverdir=$prefix/covers
 
-read -r font < "${LOCALDIR:-$HOME/local}"/cfg/dmenu/font
-readonly dmenu_opts=(
-    -i -w -ia top-gapless -is 200x250
-    -fn "$font" -p 'LAUNCH'
-    -sf '#c0c5ce' -sb '#343d46'
-    -nf '#65737e' -nb '#343d46'
-)
+read -r launch_opts < "${XDG_CONFIG_DIR:-$HOME/.config/}"/$NAME/menu
 
 puts() {
     printf -- "$1\n" "${@:2}"
@@ -69,12 +395,12 @@ create_sorted_menu() {
     local key
 
     for key in "${!titles[@]}"; do
-        puts 'IMG:%s\t%s' "${covers[$key]}" "$key"
+        puts "$key"
     done | sort
 }
 
 get_user_picks() {
-    create_sorted_menu | dmenu "${dmenu_opts[@]}"
+    create_sorted_menu | ${launch_opts[@]}
 }
 
 launch() {
@@ -120,6 +446,8 @@ process_results() {
 declare -A titles
 declare -A covers
 
+[[ $1 == 'bk' ]] && barkeep "${@:2}" && exit 0
+ 
 mkdir -p "$bindir" "$coverdir"
 
 populate_arrays < <(generate_entry_data)
