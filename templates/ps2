@@ -1,6 +1,8 @@
 #!/bin/bash
 # Title: <title>
 
+# This template simply runs the specified ISO file using the pcsx2 (https://pcsx2.net/) emulator.
+
 ISO=
 
-pcsx2 $ISO
+pcsx2 --nogui $ISO

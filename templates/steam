@@ -1,6 +1,10 @@
 #!/bin/bash
 # Title: <title>
 
+# This templates simply runs the specified game using it's APPID through Steam. 
+# This is the recommended way to run steam games since 
+# it allows for utilization of the proton compatibility layer.
+
 # To get the APPID of your Steam games you can do the following: 
 # Go to your SteamLibrary/steamapps folder. There, you will find various
 # appmanifest_*.acf files. The number part of the filename is your app's appid.

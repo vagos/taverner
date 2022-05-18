@@ -7,7 +7,7 @@ shopt -s nullglob
 NAME=taverner
 argv0=barkeep
 
-prefix=${XDG_DATA_DIR:-$HOME/.local/share}/$NAME
+prefix=${XDG_DATA_HOME:-$HOME/.local/share}/$NAME
 bindir=$prefix/bin
 coverdir=$prefix/covers
 templatedir=$prefix/templates
@@ -84,11 +84,11 @@ usage_rm
 Examples:
     # Creates an entry using the psx template called wipeout_3 using emacs
     # as the editor.
-    barkeep mk -e emacs -t psx -c ~/wipeout.png wipeout_3
+    taverner bk mk -e emacs -t psx wipeout_3
 
     # Removes both wipeout_3 and crash_bandicoot launchers along with any
     # cover images if found.
-    barkeep rm wipeout_3 crash_bandicoot
+    taverner bk rm wipeout_3 crash_bandicoot
 !
 }
 
@@ -301,7 +301,7 @@ handle_ed() {
 
 barkeep()
 {
-# mkdir -p "$bindir" "$coverdir" "$templatedir"
+mkdir -p "$bindir" "$coverdir" "$templatedir"
 
 if ! (($#)); then
     err 'At least one argument is required'
@@ -336,13 +336,12 @@ done
 shopt -s nullglob
 
 argv0=taverner
-prefix=${XDG_DATA_DIR:-$HOME/.local/share}/$NAME
+prefix=${XDG_DATA_HOME:-$HOME/.local/share}/$NAME
 bindir=$prefix/bin
 coverdir=$prefix/covers
-configdir="${XDG_CONFIG_DIR:-$HOME/.config}"
-config="$configdir"/$NAME/menu
+configdir="${XDG_CONFIG_HOME:-$HOME/.config}"/$NAME
+config="$configdir"/menu
 
-read -r launch_opts < $config
 
 puts() {
     printf -- "$1\n" "${@:2}"
@@ -453,7 +452,7 @@ Usage: taverner [bk]
         Each mode has an -h flag which produces a summary of its help section.
         -e      Preferred editor, uses \$EDITOR if not set.
 
-    Run taverner with no arguments to show your app list using the command specified in $config
+Run taverner with no arguments to show your app list using the command specified in $config
 !
 }
 
@@ -464,8 +463,12 @@ declare -A covers
 
 [[ $1 == '-h' ]] && usage_taverner && exit 0
  
-mkdir -p "$bindir" "$coverdir" "$configdir"
-touch $config
+mkdir -p "$bindir" "$templatedir" "$configdir"
+[[ ! -f $config ]] && touch $config
+
+[[ ! -s $config ]] && err "Please specify a launch command in $config" && exit 1
+
+read -r launch_opts < $config
 
 populate_arrays < <(generate_entry_data)
 

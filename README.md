@@ -14,16 +14,37 @@ launch your apps.
 
 ## INSTALL
 
+* Source
+
 ```bash
-$ sudo make DESTDIR="/usr/bin/" install
+$ git clone https://github.com/vagos/taverner
+$ cd taverner && sudo make DESTDIR="/usr/bin/" install
 ```
 
-## WHAT & HOW
+* Arch Linux
+
+taverner is on the aur as **taverner-git**
+
+```bash
+# Install using yay
+yay -S taverner-git
+```
+
+## CONFIG
+
+Configuration is placed in ```XDG_CONFIG_HOME/taverner``` or 
+in ```$HOME/.config/taverner``` edit the file ```menu``` to 
+set the command for your preferred launch menu. 
+
+We recommend [dmenu](https://github.com/stilvoid/dmenu).
+
+
+## USAGE
 
 Briefly, a typical session may look like this
 
 ```bash
-% barkeep -h
+$ taverner bk -h
 Usage: barkeep [-h] [mk | ls | ed | rm]
     Each mode has an -h flag which produces a summary of its help section.
 
@@ -63,17 +84,17 @@ attempt to remove all entires.
 Examples:
     # Creates an entry using the psx template called wipeout_3 using emacs
     # as the editor.
-    barkeep mk -e emacs -t psx -c ~/wipeout.png wipeout_3
+    taverner bk mk -e emacs -t psx wipeout_3
 
     # Removes both wipeout_3 and crash_bandicoot launchers along with any
     # cover images if found.
-    barkeep rm wipeout_3 crash_bandicoot
+    taverner bk rm wipeout_3 crash_bandicoot
 
-% barkeep ls -t
+$ taverner bk ls -t
 ppsspp
 wine
 
-% barkeep mk wipeout_pulse -t ppsspp -c ~/wipeout_pulse_cover.jpg
+$ taverner mk wipeout_pulse -t ppsspp -c ~/wipeout_pulse_cover.jpg
 ‘/home/earnest/wipeout_pure_cover.jpg’ -> ‘/home/earnest/local/data/taverner/covers/wipeout_pure’
 ‘/home/earnest/local/data/taverner/templates/ppsspp’ -> ‘/home/earnest/local/data/taverner/bin/wipeout_pure’
 ```
@@ -94,6 +115,11 @@ Here the title is read and passed to dmenu, if "# Title:" isn't present,
 taverner will fallback on the file name of the launch script.
 
 After editing the template, run taverner.
+
+Obviously, you can just add whatever files you want in the __taverner/bin__
+folder without using any of the __taverner bk__ utilities. 
+Think of __taverner bk__ as just a utility to manage your templates for
+various different game/app launchers.
 
 ## WHY
 
