@@ -1,0 +1,33 @@
+#!/bin/env bash
+
+# Load games from your Steam library into your taverner library.
+
+NAME=taverner
+
+# the folder of you SteamLibrary
+STEAM_LIBRARY_DIR=$1
+
+[[ -z $1 ]] && echo "usage: $0 <SteamLibrary folder>" && exit 1
+
+[[ ! -f $STEAM_LIBRARY_DIR ]] && echo "Folder $STEAM_LIBRARY_DIR doesn't exist." && exit 1
+
+STEAM_DIR=$STEAM_LIBRARY_DIR/steamapps
+
+PREFIX=${XDG_DATA_HOME:-$HOME/.local/share}/$NAME
+BIN_DIR=$PREFIX/bin
+
+for f in $STEAM_DIR/*.acf; do
+    NAME=$(grep -oP '"name"\s+\K"(.+)' -m 1 $f | tr -d '"' | tr '[:upper:]' '[:lower:]')
+    APPID=$(echo $f | grep -oP "\d+")
+
+    GAME_FILE="$BIN_DIR/$NAME"
+    cp templates/steam "$GAME_FILE"
+
+    sed -i "s/<title>/$NAME/" "$GAME_FILE"
+    sed -i "s/APPID=/APPID=$APPID/" "$GAME_FILE"
+
+    chmod -c +x -- "$GAME_FILE"
+
+    echo "Added $NAME."
+done
+

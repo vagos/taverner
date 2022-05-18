@@ -39,7 +39,6 @@ set the command for your preferred launch menu.
 
 We recommend [dmenu](https://github.com/stilvoid/dmenu).
 
-
 ## USAGE
 
 Briefly, a typical session may look like this
@@ -118,9 +117,19 @@ taverner will fallback on the file name of the launch script.
 After editing the template, run taverner.
 
 Obviously, you can just add whatever files you want in the __taverner/bin__
-folder without using any of the __taverner bk__ utilities. 
+folder without using any of the __taverner bk__ commands. 
 Think of __taverner bk__ as just a utility to manage your templates for
 various different game/app launchers.
+
+### Automatically load games
+
+Available are also some scripts to automatically add the necessary __taverner/bin__ files
+from a specific platform. You can find them in the
+[util](https://github.com/vagos/taverner/tree/master/util) folder in this repo.
+
+Platforms Supported:
+
+* Steam
 
 ## WHY
 
