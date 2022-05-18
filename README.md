@@ -1,12 +1,13 @@
 # taverner
 
+![taverner](taverner.png)
+
 ## INTRODUCTION
 
 Taverner is a shell script designed
 to generate and maintain a bunch of game launchers (or anything else
 really). You can use it together with dmenu and have it 
 launch your apps.
-
 
 ## REQUIRES
 
@@ -23,7 +24,7 @@ $ cd taverner && sudo make DESTDIR="/usr/bin/" install
 
 * Arch Linux
 
-taverner is on the aur as **taverner-git**
+taverner is on the aur as [taverner-git](https://aur.archlinux.org/packages/taverner-git)
 
 ```bash
 # Install using yay

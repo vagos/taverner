@@ -464,8 +464,8 @@ declare -A covers
 [[ $1 == '-h' ]] && usage_taverner && exit 0
  
 mkdir -p "$bindir" "$templatedir" "$configdir"
-[[ ! -f $config ]] && touch $config
 
+[[ ! -f $config ]] && echo "dmenu" > $config && echo "Created default config file at $config" && exit 0
 [[ ! -s $config ]] && err "Please specify a launch command in $config" && exit 1
 
 read -r launch_opts < $config
