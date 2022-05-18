@@ -301,7 +301,7 @@ handle_ed() {
 
 barkeep()
 {
-mkdir -p "$bindir" "$coverdir" "$templatedir"
+# mkdir -p "$bindir" "$coverdir" "$templatedir"
 
 if ! (($#)); then
     err 'At least one argument is required'
@@ -339,8 +339,10 @@ argv0=taverner
 prefix=${XDG_DATA_DIR:-$HOME/.local/share}/$NAME
 bindir=$prefix/bin
 coverdir=$prefix/covers
+configdir="${XDG_CONFIG_DIR:-$HOME/.config}"
+config="$configdir"/$NAME/menu
 
-read -r launch_opts < "${XDG_CONFIG_DIR:-$HOME/.config/}"/$NAME/menu
+read -r launch_opts < $config
 
 puts() {
     printf -- "$1\n" "${@:2}"
@@ -443,12 +445,27 @@ process_results() {
     done
 }
 
+usage_taverner() { 
+    cat <<!
+Usage: taverner [bk] 
+    
+    bk [-h] [mk | ls | ed | rm]        
+        Each mode has an -h flag which produces a summary of its help section.
+        -e      Preferred editor, uses \$EDITOR if not set.
+
+    Run taverner with no arguments to show your app list using the command specified in $config
+!
+}
+
 declare -A titles
 declare -A covers
 
 [[ $1 == 'bk' ]] && barkeep "${@:2}" && exit 0
+
+[[ $1 == '-h' ]] && usage_taverner && exit 0
  
-mkdir -p "$bindir" "$coverdir"
+mkdir -p "$bindir" "$coverdir" "$configdir"
+touch $config
 
 populate_arrays < <(generate_entry_data)
 
