@@ -1,0 +1,6 @@
+#!/bin/bash
+# Title: <title>
+
+ISO=
+
+pcsx2 $ISO

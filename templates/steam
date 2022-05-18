@@ -1,0 +1,14 @@
+#!/bin/bash
+# Title: <title>
+
+# To get the APPID of your Steam games you can do the following: 
+# Go to your SteamLibrary/steamapps folder. There, you will find various
+# appmanifest_*.acf files. The number part of the filename is your app's appid.
+# If you open the file, you will see a json-like formatted file. Look at the
+# "name" part. That's your app's human-readable name.
+
+# For example, the APPID of 'Left 4 Dead 2' is 550.
+
+APPID=
+
+steam steam://rungameid/$APPID
