@@ -9,7 +9,7 @@ STEAM_LIBRARY_DIR=$1
 
 [[ -z $1 ]] && echo "usage: $0 <SteamLibrary folder>" && exit 1
 
-[[ ! -f $STEAM_LIBRARY_DIR ]] && echo "Folder $STEAM_LIBRARY_DIR doesn't exist." && exit 1
+# [[ ! -f $STEAM_LIBRARY_DIR ]] && echo "Folder $STEAM_LIBRARY_DIR doesn't exist." && exit 1
 
 STEAM_DIR=$STEAM_LIBRARY_DIR/steamapps
 

@@ -1,6 +1,9 @@
 #!/bin/bash
 # barkeep - create entries based on a template for use with taverner
 
+# barkeep has now now been merged with taverner. All of its options can still
+# be invoked by passing the arguments straight to the taverner script.
+
 # Options
 shopt -s nullglob
 
@@ -68,27 +71,24 @@ attempt to remove all entires.
 
 usage() {
     cat <<'!'
-Usage: barkeep [-h] [mk | ls | ed | rm]
+Usage: taverner [-h] [mk | ls | ed | rm]
     Each mode has an -h flag which produces a summary of its help section.
+
+    Run taverner with no arguments to show your app list using the command specified in $config
 
     -e      Preferred editor, uses $EDITOR if not set.
 
 !
 
-usage_mk
-usage_ls
-usage_ed
-usage_rm
-
     cat <<!
 Examples:
     # Creates an entry using the psx template called wipeout_3 using emacs
     # as the editor.
-    taverner bk mk -e emacs -t psx wipeout_3
+    taverner mk -e emacs -t psx wipeout_3
 
     # Removes both wipeout_3 and crash_bandicoot launchers along with any
     # cover images if found.
-    taverner bk rm wipeout_3 crash_bandicoot
+    taverner rm wipeout_3 crash_bandicoot
 !
 }
 
@@ -444,24 +444,12 @@ process_results() {
     done
 }
 
-usage_taverner() { 
-    cat <<!
-Usage: taverner [bk] 
-    
-    bk [-h] [mk | ls | ed | rm]        
-        Each mode has an -h flag which produces a summary of its help section.
-        -e      Preferred editor, uses \$EDITOR if not set.
-
-Run taverner with no arguments to show your app list using the command specified in $config
-!
-}
-
 declare -A titles
 declare -A covers
 
-[[ $1 == 'bk' ]] && barkeep "${@:2}" && exit 0
+[[ $1 == '-h' ]] && usage && exit 0
+[[ ! -z $1 ]] && barkeep "${@:1}" && exit 0
 
-[[ $1 == '-h' ]] && usage_taverner && exit 0
  
 mkdir -p "$bindir" "$templatedir" "$configdir"
 
