@@ -44,8 +44,8 @@ We recommend [dmenu](https://github.com/stilvoid/dmenu).
 Briefly, a typical session may look like this
 
 ```bash
-$ taverner bk -h
-Usage: barkeep [-h] [mk | ls | ed | rm]
+$ taverner -h
+Usage: taverner [-h] [mk | ls | ed | rm]
     Each mode has an -h flag which produces a summary of its help section.
 
     -e      Preferred editor, uses $EDITOR if not set.
@@ -84,13 +84,13 @@ attempt to remove all entires.
 Examples:
     # Creates an entry using the psx template called wipeout_3 using emacs
     # as the editor.
-    taverner bk mk -e emacs -t psx wipeout_3
+    taverner mk -e emacs -t psx wipeout_3
 
     # Removes both wipeout_3 and crash_bandicoot launchers along with any
     # cover images if found.
-    taverner bk rm wipeout_3 crash_bandicoot
+    taverner rm wipeout_3 crash_bandicoot
 
-$ taverner bk ls -t
+$ taverner ls -t
 ppsspp
 wine
 
