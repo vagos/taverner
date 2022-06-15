@@ -4,12 +4,12 @@
 
 NAME=taverner
 
-# the folder of you SteamLibrary
+# the folder of your SteamLibrary
 STEAM_LIBRARY_DIR=$1
 
 [[ -z $1 ]] && echo "usage: $0 <SteamLibrary folder>" && exit 1
 
-# [[ ! -f $STEAM_LIBRARY_DIR ]] && echo "Folder $STEAM_LIBRARY_DIR doesn't exist." && exit 1
+[[ ! -d $STEAM_LIBRARY_DIR ]] && echo "Folder $STEAM_LIBRARY_DIR doesn't exist." && exit 1
 
 STEAM_DIR=$STEAM_LIBRARY_DIR/steamapps
 
@@ -21,7 +21,10 @@ for f in $STEAM_DIR/*.acf; do
     APPID=$(echo $f | grep -oP "\d+")
 
     GAME_FILE="$BIN_DIR/$NAME"
-    cp templates/steam "$GAME_FILE"
+
+    [[ -f $BIN_DIR/$NAME ]] && continue
+
+    cp $PREFIX/templates/steam "$GAME_FILE"
 
     sed -i "s/<title>/$NAME/" "$GAME_FILE"
     sed -i "s/APPID=/APPID=$APPID/" "$GAME_FILE"
