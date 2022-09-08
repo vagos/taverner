@@ -71,7 +71,7 @@ attempt to remove all entires.
 
 usage() {
     cat <<'!'
-Usage: taverner [-h] [mk | ls | ed | rm]
+Usage: taverner [mk | ls | ed | rm] [-h] 
     Each mode has an -h flag which produces a summary of its help section.
 
     Run taverner with no arguments to show your app list using the command specified in $config
@@ -227,7 +227,7 @@ handle_rm() {
     while (($#)); do
         case $1 in
             -h) usage_rm; exit ;;
-            *)  entries+=($1)
+            *)  entries+=("$1")
         esac
         shift
     done
@@ -238,13 +238,14 @@ handle_rm() {
         # As the proceeding removal code may not be dealing with absolute paths
         # if a user explicitly makes a selection we strip the bindir here to
         # keep it consistent with this assumption.
-        entries=(${entries[@]##$bindir/})
+        entries=("${entries[@]##$bindir/}")
 
         if ! ((${#entries[@]})); then
             err '%s: Nothing here to remove' "$bindir"
             exit 1
         fi
     fi
+
 
     puts 'Attempting to remove the following launchers:'
     puts '%s' "${entries[@]##$bindir/}"
@@ -292,6 +293,8 @@ handle_ed() {
 
     if [[ $entry && -e $bindir/$entry ]]; then
         collated_files+=("$bindir"/"$entry")
+    else
+        err '%s: Entry not found' "$entry"
     fi
 
     if ((${#collated_files[@]})); then
