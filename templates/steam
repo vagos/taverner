@@ -6,10 +6,11 @@
 # it allows for utilization of the proton compatibility layer.
 
 # To get the APPID of your Steam games you can do the following: 
-# Go to your SteamLibrary/steamapps folder. There, you will find various
-# appmanifest_*.acf files. The number part of the filename is your app's appid.
-# If you open the file, you will see a json-like formatted file. Look at the
-# "name" part. That's your app's human-readable name.
+# 1) Go to your SteamLibrary/steamapps folder. 
+# 2) There, you will find various appmanifest_*.acf files. 
+# 3) The number part of the filename is your app's appid.
+# 4) If you open the file, you will see a json-like formatted file. 
+# 5) Look at the "name" part. That's your app's human-readable name.
 
 # For example, the APPID of 'Left 4 Dead 2' is 550.
 

@@ -7,6 +7,9 @@ NAME=taverner
 # the folder of your SteamLibrary
 STEAM_LIBRARY_DIR=$1
 
+# Steam apps to exclude. These are things like 'Steam Linux Runtime'
+EXCLUDE=('1070560')
+
 [[ -z $1 ]] && echo "usage: $0 <SteamLibrary folder>" && exit 1
 
 [[ ! -d $STEAM_LIBRARY_DIR ]] && echo "Folder $STEAM_LIBRARY_DIR doesn't exist." && exit 1
@@ -20,9 +23,10 @@ for f in $STEAM_DIR/*.acf; do
     NAME=$(grep -oP '"name"\s+\K"(.+)' -m 1 $f | tr -d '"' | tr '[:upper:]' '[:lower:]')
     APPID=$(echo $f | grep -oP "\d+")
 
-    GAME_FILE="$BIN_DIR/$NAME"
-
+    [[ ! -z $(echo ${EXCLUDE[@]} | grep $APPID) ]] && echo "Skipping: $NAME" && continue # Exclude the app
     [[ -f $BIN_DIR/$NAME ]] && continue
+
+    GAME_FILE="$BIN_DIR/$NAME"
 
     cp $PREFIX/templates/steam "$GAME_FILE"
 

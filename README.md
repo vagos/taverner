@@ -117,9 +117,7 @@ taverner will fallback on the file name of the launch script.
 After editing the template, run taverner.
 
 Obviously, you can just add whatever files you want in the __taverner/bin__
-folder without using any of the __taverner bk__ commands. 
-Think of __taverner bk__ as just a utility to manage your templates for
-various different game/app launchers.
+folder without using any of the __taverner ...__ commands. 
 
 ### Automatically load games
 
