@@ -128,29 +128,3 @@ from a specific platform. You can find them in the
 Platforms Supported:
 
 * Steam
-
-## WHY
-
-  I wanted to turn an old machine into a game box that could play various
-  emulated games on the SNES, PSX, PSP and some older ones via WINE while
-  unifying the UI. Many existing solutions were quite sophisticated,
-  beautiful but complex graphical frontends, usually existing to serve a
-  specific set of emulators.
-
-  Since the machine I was planning to use is quite limited in terms of
-  hardware I wanted something simple (and not very clever) which did as
-  little as possible and with enough flexibility for anything I might
-  conceivably throw at it.
-
-  Initially I simply wrote a few lines of shell that passed a handwritten
-  list to dmenu which launched a second script that contained all the
-  logic necessary for starting the program. Eventually this manual
-  insertion and deletion of list entries became inconvenient which
-  resulted in the creation of the `taverner` script that generates menus
-  on the fly.
-
-  Now that was reasonably well solved, I still had the issue of manually
-  writing the launcher scripts and setting up the cover image along with
-  other potential tweaks. This is where `barkeep` comes in, it exists
-  simply to aid me in creating the launchers, copying over templates and
-  letting me just add any necessary tweaks.
